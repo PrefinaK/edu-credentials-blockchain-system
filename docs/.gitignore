@@ -1,0 +1,21 @@
+# Dependencies
+backend/node_modules/
+
+# Environment — NEVER commit this
+backend/.env
+
+# MySQL dumps
+*.sql.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Compiled Plutus
+contracts/policy.plutus
+keys/*.skey
+keys/*.vkey
