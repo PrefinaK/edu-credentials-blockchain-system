@@ -2,7 +2,7 @@
    EduCredentials — Shared Frontend JS
    ============================================================ */
 
-const API_BASE = 'http://localhost:3000/api';  // same-origin in production
+const API_BASE = 'https://edu-credentials-api.onrender.com/api';
 
 // ---------------------------------------------------------------------------
 // Auth helpers
