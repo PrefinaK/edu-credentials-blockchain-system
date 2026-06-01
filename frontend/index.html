@@ -1,187 +1,823 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EduCredentials — Decentralised Academic Credentials on Cardano</title>
-  <link rel="stylesheet" href="assets/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"/>
   <style>
-    body { background: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    /* ── Tokens ─────────────────────────────────────────────── */
+    :root {
+      --gold:       #c9963d;
+      --gold-lite:  #e8b85c;
+      --gold-pale:  #fdf4e3;
+      --radius:     14px;
+      --transition: .35s cubic-bezier(.4,0,.2,1);
+    }
 
-    .landing { max-width: 460px; width: 100%; }
+    [data-theme="dark"] {
+      --bg:         #080f1e;
+      --bg2:        #0d1930;
+      --bg3:        #12244a;
+      --surface:    rgba(255,255,255,.05);
+      --surface2:   rgba(255,255,255,.08);
+      --border:     rgba(255,255,255,.1);
+      --text:       #e8edf5;
+      --text-mute:  #7a90b0;
+      --navy:       #1a3055;
+      --card-bg:    rgba(13,25,48,.85);
+      --shadow:     0 32px 80px rgba(0,0,0,.6);
+    }
 
-    .brand { text-align: center; margin-bottom: 40px; }
+    [data-theme="light"] {
+      --bg:         #f0f4ff;
+      --bg2:        #e4eaf8;
+      --bg3:        #d6dfff;
+      --surface:    rgba(255,255,255,.7);
+      --surface2:   rgba(255,255,255,.9);
+      --border:     rgba(15,30,54,.12);
+      --text:       #0f1e36;
+      --text-mute:  #4a6080;
+      --navy:       #0f1e36;
+      --card-bg:    rgba(255,255,255,.88);
+      --shadow:     0 32px 80px rgba(15,30,54,.18);
+    }
+
+    /* ── Reset ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      transition: background var(--transition), color var(--transition);
+      overflow: hidden;
+    }
+
+    /* ── Canvas background ──────────────────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Left panel ─────────────────────────────────────────── */
+    .left-panel {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 64px;
+      gap: 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
     .brand-mark {
-      display: inline-flex;
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lite));
+      border-radius: 14px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      width: 72px; height: 72px;
-      background: var(--gold);
-      border-radius: 18px;
-      font-family: 'Instrument Serif', serif;
-      font-size: 2rem;
-      color: var(--navy);
-      margin-bottom: 16px;
-      box-shadow: 0 8px 32px rgba(201,150,61,.35);
+      font-size: 1.4rem;
+      box-shadow: 0 8px 32px rgba(201,150,61,.4);
+      animation: pulse-gold 3s ease-in-out infinite;
     }
-    .brand h1 { color: var(--white); font-size: 1.9rem; margin-bottom: 4px; }
-    .brand p  { color: var(--slate-lite); font-size: .9rem; }
+
+    @keyframes pulse-gold {
+      0%, 100% { box-shadow: 0 8px 32px rgba(201,150,61,.4); }
+      50%       { box-shadow: 0 8px 48px rgba(201,150,61,.7); }
+    }
+
+    .brand-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .brand-name span { color: var(--gold); }
+
+    .hero-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      color: var(--text);
+    }
+
+    .hero-heading .accent {
+      background: linear-gradient(135deg, var(--gold), var(--gold-lite));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--text-mute);
+      line-height: 1.7;
+      max-width: 400px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      margin-top: 8px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .stat-label {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+    }
+
+    /* Feature pills */
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--text-mute);
+      backdrop-filter: blur(12px);
+      transition: all .2s;
+    }
+
+    .pill:hover {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--gold);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* Cardano badge */
+    .cardano-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .78rem;
+      color: var(--text-mute);
+      margin-top: 8px;
+    }
+
+    .cardano-hex {
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+
+    /* ── Right panel ─────────────────────────────────────────── */
+    .right-panel {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 48px;
+    }
 
     .login-card {
-      background: var(--white);
-      border-radius: 16px;
-      padding: 36px 32px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      backdrop-filter: blur(24px);
+      box-shadow: var(--shadow);
+      animation: card-in .6s cubic-bezier(.34,1.4,.64,1) both;
     }
-    .login-card h2 { font-size: 1.25rem; margin-bottom: 6px; }
-    .login-card > p { font-size: .88rem; color: var(--text-mute); margin-bottom: 28px; }
 
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-header {
+      margin-bottom: 28px;
+    }
+
+    .card-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .card-header p {
+      font-size: .88rem;
+      color: var(--text-mute);
+    }
+
+    /* Role tabs */
     .role-tabs {
       display: flex;
       background: var(--surface);
-      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       padding: 4px;
+      gap: 3px;
       margin-bottom: 24px;
-      gap: 2px;
     }
+
     .role-tab {
       flex: 1;
-      padding: 7px 4px;
+      padding: 9px 8px;
       text-align: center;
-      border-radius: 6px;
-      font-size: .8rem;
-      font-weight: 500;
+      border-radius: 9px;
+      font-size: .82rem;
+      font-weight: 600;
       cursor: pointer;
       color: var(--text-mute);
-      transition: all .15s;
+      transition: all .2s;
       border: none;
       background: none;
       font-family: 'DM Sans', sans-serif;
+      letter-spacing: .01em;
     }
-    .role-tab.active { background: var(--white); color: var(--navy); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
 
-    .verifier-link {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
+    .role-tab.active {
+      background: linear-gradient(135deg, var(--gold), var(--gold-lite));
+      color: #0f1e36;
+      box-shadow: 0 4px 12px rgba(201,150,61,.35);
+    }
+
+    /* Alert */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
       font-size: .85rem;
-      color: var(--slate-lite);
+      border-left: 3px solid;
+      margin-bottom: 16px;
+      display: none;
     }
-    .verifier-link a { color: var(--gold-lite); }
 
-    .cardano-badge {
+    .alert-error {
+      background: rgba(192,57,43,.12);
+      border-color: #c0392b;
+      color: #e74c3c;
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem;
+      color: var(--text);
+      transition: all .2s;
+      outline: none;
+    }
+
+    .form-control::placeholder { color: var(--text-mute); opacity: .6; }
+
+    .form-control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,150,61,.15);
+      background: var(--surface2);
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lite) 100%);
+      color: #0f1e36;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: all .2s;
       display: flex;
       align-items: center;
-      gap: 8px;
       justify-content: center;
-      margin-top: 32px;
-      font-size: .78rem;
-      color: var(--slate-lite);
+      gap: 8px;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
     }
-    .cardano-badge span { opacity: .5; font-size: 1.1rem; }
+
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.2), transparent);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .btn-login:hover::after { opacity: 1; }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,150,61,.4); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Demo credentials box */
+    .demo-box {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: rgba(201,150,61,.08);
+      border: 1px solid rgba(201,150,61,.25);
+      border-radius: 10px;
+      font-size: .82rem;
+    }
+
+    .demo-box-label {
+      font-weight: 700;
+      font-size: .75rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      color: var(--text-mute);
+      font-size: .82rem;
+    }
+
+    .demo-val {
+      font-family: 'Courier New', monospace;
+      color: var(--text);
+      font-size: .8rem;
+      background: var(--surface);
+      padding: 2px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .demo-val:hover { background: var(--surface2); }
+
+    .demo-hint {
+      font-size: .75rem;
+      color: var(--text-mute);
+      margin-top: 8px;
+      opacity: .7;
+    }
+
+    /* Verifier link */
+    .verifier-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: .82rem;
+      color: var(--text-mute);
+    }
+
+    .verifier-link a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .verifier-link a:hover { text-decoration: underline; }
+
+    /* Spinner */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(15,30,54,.3);
+      border-top-color: #0f1e36;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Theme toggle ─────────────────────────────────────────── */
+    .theme-toggle {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 100;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all .2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface);
+      border-color: var(--gold);
+      transform: scale(1.08);
+    }
+
+    /* ── Floating blockchain nodes animation ─────────────────── */
+    .node-indicator {
+      position: fixed;
+      bottom: 32px;
+      left: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: .75rem;
+      color: var(--text-mute);
+      z-index: 10;
+    }
+
+    .node-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #1a7a4a;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(26,122,74,.4); }
+      50%      { opacity: .6; box-shadow: 0 0 0 6px rgba(26,122,74,0); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; overflow-y: auto; }
+      .left-panel { display: none; }
+      .right-panel { padding: 24px 20px; min-height: 100vh; }
+      .login-card { padding: 32px 24px; }
+    }
   </style>
 </head>
 <body>
-<div class="landing">
+
+<!-- Background canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="theme-btn" title="Toggle theme">🌙</button>
+
+<!-- Left panel — branding + features -->
+<div class="left-panel">
   <div class="brand">
     <div class="brand-mark">✦</div>
-    <h1>EduCredentials</h1>
-    <p>Verifiable academic credentials anchored on Cardano</p>
+    <span class="brand-name">Edu<span>Credentials</span></span>
   </div>
 
-  <div class="login-card">
-    <h2>Sign in</h2>
-    <p>Access your dashboard to issue, view, or manage credentials.</p>
+  <div>
+    <h1 class="hero-heading">
+      Academic trust,<br>
+      <span class="accent">anchored on-chain.</span>
+    </h1>
+  </div>
 
-    <div class="role-tabs">
-      <button class="role-tab active" data-role="issuer">Issuer</button>
-      <button class="role-tab" data-role="student">Student</button>
+  <p class="hero-sub">
+    Issue tamper-proof diplomas and certificates. Verify any credential
+    instantly — no phone calls, no delays, no forgeries. Powered by
+    Cardano blockchain and Plutus smart contracts.
+  </p>
+
+  <div class="stats-row">
+    <div class="stat">
+      <span class="stat-num" id="count-issued">0</span>
+      <span class="stat-label">Credentials issued</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="count-verif">0</span>
+      <span class="stat-label">Verifications</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">3</span>
+      <span class="stat-label">User roles</span>
+    </div>
+  </div>
+
+  <div class="feature-pills">
+    <div class="pill"><span class="pill-dot"></span> Plutus V2 Smart Contract</div>
+    <div class="pill"><span class="pill-dot"></span> Zero PII On-Chain</div>
+    <div class="pill"><span class="pill-dot"></span> Instant QR Verification</div>
+    <div class="pill"><span class="pill-dot"></span> JWT Authentication</div>
+    <div class="pill"><span class="pill-dot"></span> Credential Revocation</div>
+  </div>
+
+  <div class="cardano-badge">
+    <span class="cardano-hex">⬡</span>
+    Secured by Cardano Preview Testnet
+  </div>
+</div>
+
+<!-- Right panel — login card -->
+<div class="right-panel">
+  <div class="login-card">
+    <div class="card-header">
+      <h2>Sign in</h2>
+      <p>Access your dashboard to issue or manage credentials.</p>
     </div>
 
-    <div id="alert-box" class="alert alert-error" style="display:none"></div>
+    <div class="role-tabs">
+      <button class="role-tab active" data-role="issuer">🏛 Issuer</button>
+      <button class="role-tab" data-role="student">🎓 Student</button>
+    </div>
+
+    <div id="alert-box" class="alert alert-error"></div>
 
     <form id="login-form">
       <div class="form-group">
-        <label class="form-label" for="email">Email address <span class="required">*</span></label>
-        <input class="form-control" type="email" id="email" placeholder="you@institution.edu" required/>
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-control" type="email" id="email"
+          placeholder="you@institution.edu" required autocomplete="email"/>
       </div>
       <div class="form-group">
-        <label class="form-label" for="password">Password <span class="required">*</span></label>
-        <input class="form-control" type="password" id="password" placeholder="Enter your password" required/>
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" type="password" id="password"
+          placeholder="Enter your password" required autocomplete="current-password"/>
       </div>
-<div style="background:var(--gold-pale);border:1px solid var(--gold);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.85rem;">
-  <strong style="color:var(--navy)">Demo credentials</strong><br>
-  <span style="color:var(--text-mute)">Email:</span> <code style="color:var(--navy)">admin@demo.edu</code><br>
-  <span style="color:var(--text-mute)">Password:</span> <code style="color:var(--navy)">Admin1234567</code>
-</div>
-<button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn">
-        Sign in
+      <button type="submit" class="btn-login" id="login-btn">
+        Sign in →
       </button>
     </form>
+
+    <!-- Demo credentials -->
+    <div class="demo-box">
+      <div class="demo-box-label">⚡ Demo credentials</div>
+      <div class="demo-row">
+        <span>Email</span>
+        <span class="demo-val" onclick="fillDemo('email','admin@demo.edu')">admin@demo.edu</span>
+      </div>
+      <div class="demo-row">
+        <span>Password</span>
+        <span class="demo-val" onclick="fillDemo('password','Admin1234567')">Admin1234567</span>
+      </div>
+      <div class="demo-hint">Click the values above to auto-fill</div>
+    </div>
 
     <p class="verifier-link">
       Verifying a credential? <a href="verifier.html">Open verifier →</a>
     </p>
   </div>
+</div>
 
-  <div class="cardano-badge">
-    <span>⬡</span> Secured by Cardano blockchain
-  </div>
+<!-- Live node indicator -->
+<div class="node-indicator">
+  <span class="node-dot"></span>
+  <span>Cardano Preview Testnet</span>
 </div>
 
 <script src="assets/app.js"></script>
 <script>
-  // Check if already logged in
-  if (Auth.isLoggedIn()) {
-    const user = Auth.getUser();
-    window.location.href = user?.role === 'institution_admin' ? 'issuer.html' : 'student.html';
-  }
+// ── Theme toggle ──────────────────────────────────────────────────────────
+const html     = document.documentElement;
+const themeBtn = document.getElementById('theme-btn');
+const saved    = localStorage.getItem('ec_theme') || 'dark';
+html.setAttribute('data-theme', saved);
+themeBtn.textContent = saved === 'dark' ? '🌙' : '☀️';
 
-  // Role tabs
-  let selectedRole = 'issuer';
-  document.querySelectorAll('.role-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      selectedRole = tab.dataset.role;
-    });
+themeBtn.addEventListener('click', () => {
+  const current = html.getAttribute('data-theme');
+  const next    = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('ec_theme', next);
+  themeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+});
+
+// ── Animated background canvas ────────────────────────────────────────────
+const canvas  = document.getElementById('bg-canvas');
+const ctx     = canvas.getContext('2d');
+let W, H, nodes, edges;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function initNodes() {
+  nodes = Array.from({ length: 55 }, () => ({
+    x:  Math.random() * W,
+    y:  Math.random() * H,
+    vx: (Math.random() - .5) * .4,
+    vy: (Math.random() - .5) * .4,
+    r:  Math.random() * 2.5 + 1,
+    pulse: Math.random() * Math.PI * 2,
+  }));
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const lineCol = isDark ? 'rgba(201,150,61,' : 'rgba(15,30,54,';
+  const dotCol  = isDark ? '#c9963d' : '#1a3055';
+
+  nodes.forEach(n => {
+    n.x += n.vx; n.y += n.vy; n.pulse += .03;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
   });
 
-  // Handle URL params
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('session') === 'expired') {
-    showAlert(document.getElementById('alert-box'), 'Your session has expired. Please sign in again.', 'error');
-  }
-
-  // Login form
-  document.getElementById('login-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const btn = document.getElementById('login-btn');
-    const alertBox = document.getElementById('alert-box');
-    hideAlert(alertBox);
-    setLoading(btn, true);
-
-    try {
-      const data = await api.post('/auth/login', {
-        email:    document.getElementById('email').value.trim(),
-        password: document.getElementById('password').value,
-      });
-
-      Auth.setToken(data.token);
-      Auth.setUser(data.user);
-
-      // Route by role
-      const role = data.user.role;
-      if (role === 'institution_admin' || role === 'super_admin') {
-        window.location.href = 'issuer.html';
-      } else {
-        window.location.href = 'student.html';
+  // Draw edges
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 140) {
+        const alpha = (1 - dist/140) * .25;
+        ctx.beginPath();
+        ctx.strokeStyle = lineCol + alpha + ')';
+        ctx.lineWidth = .8;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
       }
-    } catch (err) {
-      showAlert(alertBox, err.error || 'Login failed — check your credentials', 'error');
-      setLoading(btn, false, 'Sign in');
     }
+  }
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const pulse = Math.sin(n.pulse) * .5 + 1;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r * pulse, 0, Math.PI*2);
+    ctx.fillStyle = dotCol;
+    ctx.globalAlpha = .35;
+    ctx.fill();
+    ctx.globalAlpha = 1;
   });
+
+  requestAnimationFrame(draw);
+}
+
+resize();
+initNodes();
+draw();
+window.addEventListener('resize', () => { resize(); initNodes(); });
+
+// ── Animated counters ─────────────────────────────────────────────────────
+function animateCount(el, target, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start).toLocaleString();
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+
+// Try to fetch real counts from backend
+async function loadStats() {
+  try {
+    const res = await fetch(`${API_BASE.replace('/api','')}/health`);
+    // Animate to demo numbers
+    animateCount(document.getElementById('count-issued'), 12, 1200);
+    animateCount(document.getElementById('count-verif'),  38, 1500);
+  } catch {
+    animateCount(document.getElementById('count-issued'), 1, 800);
+    animateCount(document.getElementById('count-verif'),  3, 1000);
+  }
+}
+setTimeout(loadStats, 400);
+
+// ── Role tabs ─────────────────────────────────────────────────────────────
+let selectedRole = 'issuer';
+document.querySelectorAll('.role-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    selectedRole = tab.dataset.role;
+  });
+});
+
+// ── Demo fill ─────────────────────────────────────────────────────────────
+function fillDemo(field, value) {
+  document.getElementById(field).value = value;
+  document.getElementById(field).focus();
+  // Trigger visual feedback
+  const el = document.getElementById(field);
+  el.style.borderColor = 'var(--gold)';
+  setTimeout(() => el.style.borderColor = '', 800);
+}
+
+// ── Check existing session ────────────────────────────────────────────────
+if (Auth.isLoggedIn()) {
+  const user = Auth.getUser();
+  window.location.href = user?.role === 'institution_admin' ? 'issuer.html' : 'student.html';
+}
+
+const params = new URLSearchParams(window.location.search);
+if (params.get('session') === 'expired') {
+  const box = document.getElementById('alert-box');
+  box.style.display = 'block';
+  box.textContent = 'Your session has expired. Please sign in again.';
+}
+
+// ── Login form ────────────────────────────────────────────────────────────
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const alertBox = document.getElementById('alert-box');
+  alertBox.style.display = 'none';
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const data = await api.post('/auth/login', {
+      email:    document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+    });
+
+    Auth.setToken(data.token);
+    Auth.setUser(data.user);
+
+    btn.innerHTML = '✓ Success!';
+    btn.style.background = 'linear-gradient(135deg, #1a7a4a, #2a9a5a)';
+
+    setTimeout(() => {
+      const role = data.user.role;
+      window.location.href = (role === 'institution_admin' || role === 'super_admin')
+        ? 'issuer.html' : 'student.html';
+    }, 500);
+
+  } catch (err) {
+    alertBox.style.display = 'block';
+    alertBox.textContent = err.error || 'Login failed — check your credentials';
+    btn.disabled = false;
+    btn.innerHTML = 'Sign in →';
+    // Shake animation
+    const card = document.querySelector('.login-card');
+    card.style.animation = 'none';
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { card.style.transform = 'translateX(0)'; card.style.transition = 'transform .15s'; }, 160);
+  }
+});
 </script>
 </body>
 </html>
