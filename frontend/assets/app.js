@@ -32,7 +32,7 @@ async function apiRequest(path, options = {}) {
 
   if (res.status === 401) {
     Auth.clear();
-    window.location.href = '/index.html?session=expired';
+    window.location.href = 'index.html?session=expired';
     return;
   }
 
@@ -140,7 +140,7 @@ function initNavbar(role) {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       Auth.clear();
-      window.location.href = '/index.html';
+      window.location.href = 'index.html';
     });
   }
 }
